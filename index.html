@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Online</title>
+  <style>
+
+    *{
+      margin: 0px;
+      padding: 0px;
+    }
+
+    body{
+      font-family: 'Times New Roman', Times, serif;
+    }
+
+    h1{
+    text-align: center;
+    
+    margin: 30px 0px 30px 0px;
+}
+
+  div.chat{
+    height: 600px;
+    
+    border: 2px solid gray;
+    padding: 30px;
+
+    margin: auto;
+    
+}
+
+div.chat-tool{
+  width: 400px;
+  margin: auto;
+
+}
+
+div.chat > p{
+  width: 365px;
+  overflow-wrap: break-word;
+}
+
+  #popUp{
+    display: block;
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 30px 30px 30px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+
+  #overlay{
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 900;
+    backdrop-filter: blur(5px); /* Aplica desfoque ao fundo apenas */
+  }
+  </style>
+</head>
+
+<body>
+  <h1>Chat Online</h1>
+  <div class="chat-tool">
+  <div class="chat" id="mensagens">
+      <!--
+        <p>texto</p>
+      -->
+    </div>
+      <input id="m" autocomplete="off"/><input type="button" value="Enviar" onclick="sendMessage()">
+  </div>
+
+
+  <div id="popUp">
+      <h2>Olá, insira o seu nome abaixo:</h2>
+      <label for="nomeUsuario">Nome: </label>
+      <input type="text" name="nomeUsuario" id="nomeUsuario" autocomplete="off"
+      onkeydown="pressDown(event)" >
+      <input type="button" value="Confirmar" onclick="salvarNome()">
+      <p 
+      style="display: none;
+             margin-bottom: 0px;
+             color: rgb(194, 34, 34);
+             font-weight: bold;
+             text-decoration: underline;"
+             id="nomeIncorreto">Por favor, insira um nome antes de confirmar!</p>
+  </div>
+
+  <div id="overlay"></div>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var nome = '';
+    function salvarNome(){
+      var nomeUsuario = document.querySelector("#nomeUsuario");
+      if (nomeUsuario.value.trim() === ""){
+        document.querySelector("#nomeIncorreto").style.display = 'block';
+      } else{
+        document.querySelector("#popUp").style.display = 'none';
+        document.querySelector("#overlay").style.display = 'none';
+        nome = nomeUsuario.value;
+      }
+    }
+
+    function pressDown(event){
+        if (event.key === 'Enter') {
+          salvarNome();
+        }
+    }
+
+    const socket = io();
+
+    function sendMessage() {
+      const messageInput = document.getElementById('m');
+      const message = messageInput.value.trim();
+
+      if (message !== '') {
+        socket.emit('chat message', message, nome);
+        messageInput.value = '';
+      }
+    }
+
+    socket.on('chat message', function(msg, nome) {
+      const messagesList = document.getElementById('mensagens');
+      const listItem = document.createElement('p');
+      listItem.textContent = nome + ": " + msg;
+      messagesList.appendChild(listItem);
+    });
+  </script>
+</body>
+</html>
