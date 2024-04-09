@@ -41,7 +41,7 @@ class ChatApp:
         self.name = nome_usuario
         self.window = window
         #self.window.resizable(False, False)
-        self.window.title(f"Chat Online")
+        self.window.title(f"Chat Online - {self.name}")
 
         #self.style = ttk.Style()
         #self.style.configure('TText', font=('Arial', 10))
@@ -53,6 +53,9 @@ class ChatApp:
 
         self.chat_display = ttk.Text(self.chat_box,wrap='word',state='disabled',height=10,width=120)
         self.chat_display.pack(side = 'left',padx=10)
+        # Configuração de tags para alinhamento
+        self.chat_display.tag_configure('right', justify='right')
+        self.chat_display.tag_configure('left', justify='left')
 
         self.scrollbar = ttk.Scrollbar(self.chat_box, command=self.chat_display.yview)
         self.scrollbar.pack(side='right', padx=10, fill='y')  # fill='y' para preencher a altura disponível
@@ -92,9 +95,12 @@ class ChatApp:
                 mensagem = mensagem.split(f" {format(math.pi, '.10f')} ")
                 if mensagem[0]:
                     nome = mensagem[1]
-                    
                     self.chat_display.configure(state='normal')
-                    self.chat_display.insert(tk.END, f'{nome}: {mensagem[0]}\n')
+
+                    if nome == self.name:
+                        self.chat_display.insert(tk.END, f'{mensagem[0]}\n', 'right')
+                    else:
+                        self.chat_display.insert(tk.END, f'{nome}: {mensagem[0]}\n', 'left')
                     self.chat_display.configure(state='disabled')
             except ConnectionError:
                 break
