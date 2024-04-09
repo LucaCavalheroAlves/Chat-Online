@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import Scrollbar, Text, Entry, Button, Label, END
+#from tkinter import Scrollbar, Text, Entry, Button, Label, END
+import ttkbootstrap as ttk
 import socket
 import threading
 import math
@@ -9,31 +10,28 @@ class NameEntryApp:
         self.root = window
         self.root.title("Nome do Usuário")
 
-        #self.label = Label(window, text="Digite seu nome:")
-        #self.label.pack(side='left')
+        self.style = ttk.Style()
+        self.style.configure('TLabel', font=('Arial', 10, 'bold'))
+        self.style.configure('TButton', font=('Arial', 10))
 
-        #self.name_entry = Entry(window)
-        #self.name_entry.pack(side='left')
+        self.box = tk.Frame(window)
 
-        self.label = Label(window, text="Digite seu nome:")
-        self.label.grid(row=0, column=0,padx=10)
+        self.label = ttk.Label(self.box, text="Digite seu nome:")
+        self.name_entry = ttk.Entry(self.box)
+        self.enter_button = ttk.Button(window, text="Confirmar", command=self.iniciar_chat)
 
-        self.name_entry = Entry(window)
-        self.name_entry.grid(row=0, column=1,pady=20)
+        self.box.pack(pady = 15)
+        self.label.pack(side = 'left', padx = 5)
+        self.name_entry.pack(side = 'right')
+        self.enter_button.pack()
 
-        self.enter_button = Button(window, text="Entrar", command=self.iniciar_chat)
-        self.enter_button.grid(row=1,column=1)
-
-        #self.enter_button = Button(window, text="Entrar", command=self.iniciar_chat)
-        #self.enter_button.pack(pady=10)
 
     def iniciar_chat(self):
         nome_usuario = self.name_entry.get()
         if nome_usuario:
-            self.root.destroy()  # Fecha a janela de entrada de nome
-            chat_root = tk.Tk()
-            app = ChatApp(chat_root, nome_usuario)
-            chat_root.mainloop()
+            self.root.withdraw()  # Esconde a janela de entrada de nome
+            chat_root = tk.Toplevel()  # Usar Toplevel em vez de Window
+            app = ChatApp(chat_root, nome_usuario)            
 
 class ChatApp:
     def __init__(self, root, nome_usuario):
@@ -41,26 +39,32 @@ class ChatApp:
         self.root = root
         self.root.title(f"Chat Online - Bem-vindo, {nome_usuario}")
 
-        self.chat_display = Text(root, wrap='word', state='disabled', height=10, width=50)
+        #self.style = ttk.Style()
+        #self.style.configure('TText', font=('Arial', 10))
+        #self.style.configure('TButton', font=('Arial', 10))
+        #self.style.configure('TEntry', font=('Arial', 10))  
+
+        self.chat_display = ttk.Text(root, wrap='word', state='disabled', height=10, width=50)
         self.chat_display.grid(row=0, column=0, padx=10, pady=10, columnspan=3)
 
-        self.scrollbar = Scrollbar(root, command=self.chat_display.yview)
+        self.scrollbar = ttk.Scrollbar(root, command=self.chat_display.yview)
         self.scrollbar.grid(row=0, column=3, sticky='nsew')
         self.chat_display['yscrollcommand'] = self.scrollbar.set
 
-        self.message_input = Entry(root, width=30)
+        self.message_input = ttk.Entry(root, width=30)
         self.message_input.grid(row=1, column=0, padx=10, pady=10)
 
-        self.send_button = Button(root, text="Enviar", command=self.enviar_mensagem)
+        self.send_button = ttk.Button(root, text="Enviar", command=self.enviar_mensagem)
         self.send_button.grid(row=1, column=1, padx=10, pady=10)
 
-        self.clear_button = Button(root, text="Limpar", command=self.limpar_chat)
+        self.clear_button = ttk.Button(root, text="Limpar", command=self.limpar_chat)
         self.clear_button.grid(row=1, column=2, padx=10, pady=10)
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect(('localhost', 3000))  # Substitua pelo IP e porta do servidor
+        self.socket.connect(('localhost', 3000))
 
         threading.Thread(target=self.receber_mensagens).start()
+
 
     def enviar_mensagem(self):
         ''' Abaixo tem 3 parametros: 
@@ -93,7 +97,7 @@ class ChatApp:
 
 
 if __name__ == '__main__':
-    window = tk.Tk()
+    window = ttk.Window()
 
     # Calculando a posição central da tela
     screen_width = window.winfo_screenwidth()
