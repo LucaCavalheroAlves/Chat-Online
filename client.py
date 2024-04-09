@@ -7,8 +7,8 @@ import math
 
 class NameEntryApp:
     def __init__(self, window):
-        self.root = window
-        self.root.title("Nome do Usuário")
+        self.window = window
+        self.window.title("Nome do Usuário")
 
         self.style = ttk.Style()
         self.style.configure('TLabel', font=('Arial', 10, 'bold'))
@@ -29,36 +29,45 @@ class NameEntryApp:
     def iniciar_chat(self):
         nome_usuario = self.name_entry.get()
         if nome_usuario:
-            self.root.withdraw()  # Esconde a janela de entrada de nome
-            chat_root = tk.Toplevel()  # Usar Toplevel em vez de Window
-            app = ChatApp(chat_root, nome_usuario)            
+            self.window.withdraw()  # Esconde a janela de entrada de nome
+            chat_window = tk.Toplevel()  # Usar Toplevel em vez de Window
+            #chat_window.geometry(f'440x250+{x}+{y}')    
+            chat_window.geometry(f'800x500+{x}+{y}')
+            app = ChatApp(chat_window, nome_usuario)            
 
 class ChatApp:
-    def __init__(self, root, nome_usuario):
+    def __init__(self, window, nome_usuario):
+        
         self.name = nome_usuario
-        self.root = root
-        self.root.title(f"Chat Online - Bem-vindo, {nome_usuario}")
+        self.window = window
+        #self.window.resizable(False, False)
+        self.window.title(f"Chat Online")
 
         #self.style = ttk.Style()
         #self.style.configure('TText', font=('Arial', 10))
         #self.style.configure('TButton', font=('Arial', 10))
         #self.style.configure('TEntry', font=('Arial', 10))  
 
-        self.chat_display = ttk.Text(root, wrap='word', state='disabled', height=10, width=50)
-        self.chat_display.grid(row=0, column=0, padx=10, pady=10, columnspan=3)
+        self.chat_box = tk.Frame(self.window)
+        self.input = tk.Frame(self.window)
 
-        self.scrollbar = ttk.Scrollbar(root, command=self.chat_display.yview)
-        self.scrollbar.grid(row=0, column=3, sticky='nsew')
-        self.chat_display['yscrollcommand'] = self.scrollbar.set
+        self.chat_display = ttk.Text(self.chat_box,wrap='word',state='disabled',height=10,width=120)
+        self.chat_display.pack(side = 'left',padx=10)
 
-        self.message_input = ttk.Entry(root, width=30)
-        self.message_input.grid(row=1, column=0, padx=10, pady=10)
+        self.scrollbar = ttk.Scrollbar(self.chat_box, command=self.chat_display.yview)
+        self.scrollbar.pack(side='right', padx=10, fill='y')  # fill='y' para preencher a altura disponível
 
-        self.send_button = ttk.Button(root, text="Enviar", command=self.enviar_mensagem)
-        self.send_button.grid(row=1, column=1, padx=10, pady=10)
+        self.message_input = ttk.Entry(self.input, width=30)
+        self.message_input.pack(side='left',padx=10)
 
-        self.clear_button = ttk.Button(root, text="Limpar", command=self.limpar_chat)
-        self.clear_button.grid(row=1, column=2, padx=10, pady=10)
+        self.send_button = ttk.Button(self.input, text="Enviar", command=self.enviar_mensagem)
+        self.send_button.pack(side='left',padx=8)
+
+        self.clear_button = ttk.Button(self.input, text="Limpar", command=self.limpar_chat)
+        self.clear_button.pack(side='left',padx=7)
+
+        self.chat_box.pack(fill='x', padx=10, pady=10)
+        self.input.pack(fill='x', padx=10, pady=10)
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect(('localhost', 3000))
@@ -97,14 +106,14 @@ class ChatApp:
 
 
 if __name__ == '__main__':
-    window = ttk.Window()
+    Start_window = ttk.Window()
 
     # Calculando a posição central da tela
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
+    screen_width = Start_window.winfo_screenwidth()
+    screen_height = Start_window.winfo_screenheight()
     x = (screen_width - 400) // 2
     y = (screen_height - 200) // 2
-    window.geometry(f'300x127+{x}+{y}')
+    Start_window.geometry(f'300x127+{x}+{y}')
 
-    entry_app = NameEntryApp(window)
-    window.mainloop()
+    entry_app = NameEntryApp(Start_window)
+    Start_window.mainloop()
