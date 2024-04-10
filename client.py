@@ -88,6 +88,9 @@ class ChatApp:
             cifra = rsa.cifrar(mensagem,28837,40301)
             self.socket.send(cifra.encode())
             self.message_input.delete(0, tk.END)
+            self.scroll_to_bottom()
+            
+            
 
     def receber_mensagens(self):
         while True:
@@ -101,8 +104,10 @@ class ChatApp:
 
                     if nome == self.name:
                         self.chat_display.insert(tk.END, f'{msg_decifrada[0]}\n', 'right')
+                        self.scroll_to_bottom()
                     else:
                         self.chat_display.insert(tk.END, f'{nome}: {msg_decifrada[0]}\n', 'left')
+                        self.scroll_to_bottom()
                     self.chat_display.configure(state='disabled')
             except ConnectionError:
                 break
@@ -111,6 +116,10 @@ class ChatApp:
         self.chat_display.configure(state='normal')
         self.chat_display.delete(1.0, tk.END)
         self.chat_display.configure(state='disabled')
+        
+    def scroll_to_bottom(self):
+        """Rola o chat para baixo."""
+        self.chat_display.yview_moveto(1.0)
 
 
 if __name__ == '__main__':
