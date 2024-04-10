@@ -1,5 +1,5 @@
 import tkinter as tk
-#from tkinter import Scrollbar, Text, Entry, Button, Label, END
+from Lib import CriptografiaRSA as rsa
 import ttkbootstrap as ttk
 import socket
 import threading
@@ -85,22 +85,24 @@ class ChatApp:
             III. o nome do cliente.'''
         mensagem = f"{self.message_input.get()} {format(math.pi, '.10f')} {self.name}"
         if mensagem:
-            self.socket.send(mensagem.encode())
+            cifra = rsa.cifrar(mensagem,28837,40301)
+            self.socket.send(cifra.encode())
             self.message_input.delete(0, tk.END)
 
     def receber_mensagens(self):
         while True:
             try:
                 mensagem = self.socket.recv(1024).decode()
-                mensagem = mensagem.split(f" {format(math.pi, '.10f')} ")
-                if mensagem[0]:
-                    nome = mensagem[1]
+                msg_decifrada = rsa.decifrar(mensagem,40301,12973)
+                msg_decifrada = msg_decifrada.split(f" {format(math.pi, '.10f')} ")
+                if msg_decifrada[0]:
+                    nome = msg_decifrada[1]
                     self.chat_display.configure(state='normal')
 
                     if nome == self.name:
-                        self.chat_display.insert(tk.END, f'{mensagem[0]}\n', 'right')
+                        self.chat_display.insert(tk.END, f'{msg_decifrada[0]}\n', 'right')
                     else:
-                        self.chat_display.insert(tk.END, f'{nome}: {mensagem[0]}\n', 'left')
+                        self.chat_display.insert(tk.END, f'{nome}: {msg_decifrada[0]}\n', 'left')
                     self.chat_display.configure(state='disabled')
             except ConnectionError:
                 break
