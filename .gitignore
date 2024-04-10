@@ -146,3 +146,4 @@ dist
 ex.js
 explicacao.txt
 index.py
+__pycache__
